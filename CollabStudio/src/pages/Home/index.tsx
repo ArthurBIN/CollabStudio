@@ -1,13 +1,18 @@
-import {Outlet} from "react-router-dom";
-import './index.scss'
+import { Outlet } from "react-router-dom";
+import "./index.scss";
+import Sidebar from "@/components/Sidebar";
+
 const Home = () => {
-
     return (
-        <div className={'All'}>
-            1
-            <Outlet />
+        <div className="home_All">
+            <div className="home_SiderBarBox">
+                <Sidebar />
+            </div>
+            <div className="home_OutletContainer">
+                <Outlet />
+            </div>
         </div>
-    )
-}
+    );
+};
 
-export default Home
+export default Home;

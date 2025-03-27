@@ -3,3 +3,28 @@
   padding: 0;
   margin: 0;
 }
+
+:root {
+  --color-border: #e6e6e6;
+  --color-bg-hover: #f5f5f5;
+  --color-bg-select: #E8F3FE;
+}
+
+@font-face {
+  font-family: "iconfont"; /* Project id 4873357 */
+  src: url('//at.alicdn.com/t/c/font_4873357_favrqdrdibd.woff2?t=1743067289859') format('woff2'),
+  url('//at.alicdn.com/t/c/font_4873357_favrqdrdibd.woff?t=1743067289859') format('woff'),
+  url('//at.alicdn.com/t/c/font_4873357_favrqdrdibd.ttf?t=1743067289859') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-shijian:before {
+  content: "\e8a9";
+}
+

@@ -33,10 +33,14 @@ const Sidebar = () => {
         <div className="sidebar_All">
             <div className="sidebar_Logo">CollabStudio</div>
             <DivedLine />
-            <LinkBox text="最近" path="/recents">
+            <LinkBox text="最近" path="/files/recents">
                 <i className="iconfont icon-shijian"></i>
             </LinkBox>
             <DivedLine />
+            <div className={'sidebar_TeamsName'}>
+                <i className={'iconfont icon-pingtaiiconhuizong_huaban1fuben5'}></i>
+                我的团队
+            </div>
         </div>
     )
 }

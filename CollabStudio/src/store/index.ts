@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "@/store/modules/authStore.tsx"; // 不需要 .ts 后缀
+import authReducer from "@/store/modules/authStore.tsx";
+import teamsReducer from "@/store/modules/authStore.tsx";
 
 const store = configureStore({
     reducer: {
-        auth: authReducer // 直接传入 reducer，而不是调用它
+        auth: authReducer, // 直接传入 reducer，而不是调用它
+        teams: teamsReducer
     }
 });
 

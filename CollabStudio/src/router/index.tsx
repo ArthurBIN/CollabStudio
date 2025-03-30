@@ -22,7 +22,7 @@ export const router = createBrowserRouter([
                 element: <Navigate to="/files/recents" replace />
             },
             {
-                path: "teams/:team_id",
+                path: "teams",
                 element: <Teams />
             },
             {
@@ -30,7 +30,7 @@ export const router = createBrowserRouter([
                 element: <Recents />
             },
             {
-                path: "teams/:team_id/all-projects",
+                path: "teams/all-projects",
                 element: <AllProjects />
             },
         ]

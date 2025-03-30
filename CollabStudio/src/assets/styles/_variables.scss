@@ -8,13 +8,15 @@
   --color-border: #e6e6e6;
   --color-bg-hover: #f5f5f5;
   --color-bg-select: #E8F3FE;
+  --color-bg-btn: #1677FF;
+  --border-radius: 4px;
 }
 
 @font-face {
   font-family: "iconfont"; /* Project id 4873357 */
-  src: url('//at.alicdn.com/t/c/font_4873357_mzvcsznyf9.woff2?t=1743155646509') format('woff2'),
-  url('//at.alicdn.com/t/c/font_4873357_mzvcsznyf9.woff?t=1743155646509') format('woff'),
-  url('//at.alicdn.com/t/c/font_4873357_mzvcsznyf9.ttf?t=1743155646509') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_4873357_lxem0sx0ge.woff2?t=1743340818244') format('woff2'),
+  url('//at.alicdn.com/t/c/font_4873357_lxem0sx0ge.woff?t=1743340818244') format('woff'),
+  url('//at.alicdn.com/t/c/font_4873357_lxem0sx0ge.ttf?t=1743340818244') format('truetype');
 }
 
 .iconfont {
@@ -22,6 +24,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-xiangmu:before {
+  content: "\e738";
+}
+
+.icon-xiangmu1:before {
+  content: "\e630";
 }
 
 .icon-pingtaiiconhuizong_huaban1fuben5:before {

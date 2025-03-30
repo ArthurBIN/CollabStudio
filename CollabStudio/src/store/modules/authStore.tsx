@@ -55,8 +55,7 @@ export const registerUser = (form: { email: string; password: string }) => async
 };
 
 // **用户登录**
-export const loginUser =
-    (form: { email: string; password: string }) => async (dispatch: AppDispatch) => {
+export const loginUser = (form: { email: string; password: string }) => async (dispatch: AppDispatch) => {
         dispatch(setLoading(true));
         try {
             const { data, error } = await supabase.auth.signInWithPassword(form);

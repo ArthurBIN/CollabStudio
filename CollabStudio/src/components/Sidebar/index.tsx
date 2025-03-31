@@ -1,6 +1,6 @@
 import './index.scss'
 import {useLocation, useNavigate} from "react-router-dom";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch} from "@/store";
 import {checkTeam, setCurrentTeam} from "@/store/modules/teamsStore.tsx";

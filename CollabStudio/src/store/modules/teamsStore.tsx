@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { supabase } from "@/utils/supabaseClient.ts";
 import { AppDispatch } from "@/store";
+import {message} from "antd";
 
 interface Team {
     team_id: string;
@@ -24,7 +25,6 @@ const teamsStore = createSlice({
     initialState,
     reducers: {
         setTeams: (state, action) => {
-            console.log("所有团队数据:", action.payload);
             state.teams = action.payload;
             if (action.payload.length > 0) {
                 const savedTeamId = localStorage.getItem("currentTeamId");
@@ -66,8 +66,6 @@ export const checkTeam = () => async (dispatch: AppDispatch) => {
         }
 
         if (existingTeams?.length > 0) {
-            console.log("用户所属团队列表: ", existingTeams);
-
             const teams = existingTeams?.map(team => ({
                 team_id: team.team_id,
                 name: team.teams?.name || "未知团队"
@@ -77,6 +75,7 @@ export const checkTeam = () => async (dispatch: AppDispatch) => {
         }
     } catch (err) {
         console.error("checkTeam 发生错误：", err);
+        message.error(err.message);
     } finally {
         dispatch(setLoading(false));
     }

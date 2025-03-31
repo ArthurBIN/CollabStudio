@@ -14,9 +14,9 @@
 
 @font-face {
   font-family: "iconfont"; /* Project id 4873357 */
-  src: url('//at.alicdn.com/t/c/font_4873357_lxem0sx0ge.woff2?t=1743340818244') format('woff2'),
-  url('//at.alicdn.com/t/c/font_4873357_lxem0sx0ge.woff?t=1743340818244') format('woff'),
-  url('//at.alicdn.com/t/c/font_4873357_lxem0sx0ge.ttf?t=1743340818244') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_4873357_ft12v68ia8n.woff2?t=1743395621903') format('woff2'),
+  url('//at.alicdn.com/t/c/font_4873357_ft12v68ia8n.woff?t=1743395621903') format('woff'),
+  url('//at.alicdn.com/t/c/font_4873357_ft12v68ia8n.ttf?t=1743395621903') format('truetype');
 }
 
 .iconfont {
@@ -24,6 +24,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-wenjian-L:before {
+  content: "\e61f";
+}
+
+.icon-huabi:before {
+  content: "\ea33";
 }
 
 .icon-xiangmu:before {
@@ -41,4 +49,5 @@
 .icon-shijian:before {
   content: "\e8a9";
 }
+
 

@@ -1,3 +1,7 @@
+/**
+ * 此结构为document和canvas的集合操作
+**/
+
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { supabase } from "@/utils/supabaseClient.ts";
 import { message } from "antd";
@@ -19,16 +23,12 @@ interface Item {
 }
 
 interface DocumentState {
-    documents: Item[]; // 只存文档
-    canvases: Item[];  // 只存画布
-    items: Item[];     // 存储所有数据
+    items: Item[];
     loading: boolean;
 }
 
 // 初始状态
 const initialState: DocumentState = {
-    documents: [],
-    canvases: [],
     items: [],
     loading: false,
 };
@@ -39,11 +39,7 @@ const documentsStore = createSlice({
     initialState,
     reducers: {
         setDocumentsAndCanvases: (state, action) => {
-            state.items = action.payload; // 存储所有数据
-
-            // 根据 type 分开存储
-            state.documents = action.payload.filter((item: Item) => item.type === "document");
-            state.canvases = action.payload.filter((item: Item) => item.type === "canvas");
+            state.items = action.payload;
         },
         setLoading: (state, action) => {
             state.loading = action.payload;

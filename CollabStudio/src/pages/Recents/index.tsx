@@ -98,7 +98,7 @@ const Recents = () => {
             if (res.id) {
                 message.success("创建成功！");
                 // 触发获取文档列表，更新 UI
-                dispatch(getDocuments(currentTeamId));
+                dispatch(getDocumentsAndCanvases(currentTeamId));
             }
         } catch (error) {
             console.error(error);

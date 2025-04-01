@@ -1,0 +1,110 @@
+// 顶部菜单栏样式
+.control-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f5f5;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  .button-group {
+    display: flex;
+    gap: 6px;
+
+    button {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+
+      &:hover {
+        background: #eaeaea;
+      }
+
+      &.is-active {
+        background: #4a90e2;
+        color: white;
+        border-color: #4a90e2;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// 文档容器
+.document_All {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 24px;
+    color: #333;
+  }
+}
+
+// 编辑器内容
+.tiptap {
+  min-height: 300px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+  outline: none;
+
+  &:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 3px rgba(74, 144, 226, 0.5);
+  }
+}
+
+.bubble-menu {
+  display: flex;
+  gap: 6px;
+  background: white;
+  border-radius: 6px;
+  padding: 5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid #ddd;
+
+  button {
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+
+    &:hover {
+      background: #f0f0f0;
+    }
+
+    &.active {
+      background: #4a90e2;
+      color: white;
+    }
+  }
+}

@@ -6,6 +6,7 @@ import {useSelector} from "react-redux";
 import Recents from "@/pages/Recents";
 import Teams from "@/pages/Teams";
 import AllProjects from "@/pages/AllProjects";
+import Document from "@/pages/Document";
 
 const ProtectedRoute = ({ element }: { element: JSX.Element }) => {
     const { token } = useSelector(state => state.auth)
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
                 element: <AllProjects />
             },
         ]
+    },
+    {
+        path: "/document/:document_id",
+        element: <Document />
     },
     {
         path: "/login",

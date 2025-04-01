@@ -50,14 +50,15 @@ export const registerUser = (form: { email: string; password: string }) => async
         }
     } catch (err) {
         message.error(err.message);
+    } finally {
+        dispatch(setLoading(false));
     }
-    dispatch(setLoading(false));
 };
 
 // **用户登录**
 export const loginUser = (form: { email: string; password: string }) => async (dispatch: AppDispatch) => {
-        dispatch(setLoading(true));
         try {
+            dispatch(setLoading(true));
             const { data, error } = await supabase.auth.signInWithPassword(form);
             if (error) {
                 message.error(error.message);
@@ -71,8 +72,9 @@ export const loginUser = (form: { email: string; password: string }) => async (d
             }
         } catch (err) {
             message.error(err.message);
+        } finally {
+            dispatch(setLoading(false));
         }
-        dispatch(setLoading(false));
     };
 
 // **检查并创建默认团队**

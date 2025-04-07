@@ -32,7 +32,6 @@ const teamsStore = createSlice({
             }
         },
         setCurrentTeam: (state, action) => {
-            console.log("切换团队:", action.payload);
             state.currentTeamId = action.payload;
             localStorage.setItem("currentTeamId", action.payload);
         },
@@ -72,6 +71,15 @@ export const checkTeam = () => async (dispatch: AppDispatch) => {
             }));
 
             dispatch(setTeams(teams));
+
+            const savedTeamId = localStorage.getItem("currentTeamId");
+            const matchedTeam = teams?.find(t => t.team_id === savedTeamId);
+
+            if (savedTeamId && matchedTeam) {
+                dispatch(setCurrentTeam(savedTeamId));
+            } else {
+                dispatch(setCurrentTeam(teams?.[0].team_id));
+            }
         }
     } catch (err) {
         console.error("checkTeam 发生错误：", err);
@@ -80,6 +88,7 @@ export const checkTeam = () => async (dispatch: AppDispatch) => {
         dispatch(setLoading(false));
     }
 };
+
 
 // 导出新添加的切换团队 action
 export const {

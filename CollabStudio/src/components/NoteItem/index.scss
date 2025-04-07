@@ -1,0 +1,30 @@
+.type_All {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-right: 20px;
+}
+.NoteItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 16px 10px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--color-border);
+  &:hover {
+    background-color: var(--color-bg-hover);
+  }
+  &_Title {
+    font-size: 14px;
+    width: 260px;
+  }
+  &_Time {
+    font-size: 14px;
+    color: #8A8F8D;
+    width: 240px;
+  }
+}

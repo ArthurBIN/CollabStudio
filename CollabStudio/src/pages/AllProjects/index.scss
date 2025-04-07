@@ -5,18 +5,32 @@
 .allprojects_Topic {
   font-size: 22px;
   font-weight: 700;
+  display: flex;
+  .allprojects_Add {
+    font-weight: 400;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: #585A5A;
+    cursor: pointer;
+    margin-left: 15px;
+    font-size: 17px;
+    &:hover {
+      background-color: var(--color-bg-hover);
+    }
+  }
 }
 .allprojects_List {
   margin-top: 30px;
 }
-
-.type_All {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
+.allprojects_Loading {
+  width: 100%;
+  height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  margin-right: 20px;
 }

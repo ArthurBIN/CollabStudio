@@ -1,37 +1,15 @@
 import './index.scss'
-import { useEffect } from "react";
+import {useEffect, useState} from "react";
 import { getDocumentsAndCanvases } from "@/store/modules/documentsStore.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/store";
-import { Table, Button } from "antd";
-import {useNavigate} from "react-router-dom";
-
-interface iconType {
-    type: string
-}
-
-const Type = (props: iconType) => {
-    const { type } = props;
-
-    return (
-        <>
-            {type === "document" ? (
-                <div className={'type_All'} style={{ backgroundColor: "#1677FF" }}>
-                    <i className={'iconfont icon-wenjian-L'}></i>
-                </div>
-            ) : type === "canvas" ? (
-                <div className={'type_All'} style={{ backgroundColor: "#8D4BF6" }}>
-                    <i className={'iconfont icon-huabi'}></i>
-                </div>
-            ) : null}
-        </>
-    );
-};
-
+import NoteItem from "@/components/NoteItem";
+import {Dropdown, Empty, Spin} from "antd";
+import AddDocument from "@/components/AddDocument";
+import AddCanvas from "@/components/AddCanvas";
 
 const AllProjects = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const navigate = useNavigate()
     const currentTeamId = useSelector(state => state.teams.currentTeamId);
     const loading = useSelector(state => state.documents.loading);
     const items = useSelector(state => state.documents.items);
@@ -39,109 +17,86 @@ const AllProjects = () => {
     const storedAuth = JSON.parse(localStorage.getItem("sb-hwhmtdmefdcdhvqqmzgl-auth-token") || "{}");
     const userEmail = storedAuth?.user.email
 
+    const [openCreateDocument, setOpenCreateDocument] = useState(false);
+    const [openCreateCanvas, setOpenCreateCanvas] = useState(false);
+
+
     useEffect(() => {
         if (currentTeamId) {
             dispatch(getDocumentsAndCanvases(currentTeamId));
         }
     }, [currentTeamId, dispatch]);
 
-    // 定义 Table 列
-    const columns = [
+    const downItem = [
         {
-            title: "标题",
-            dataIndex: "title",
-            key: "title",
-            render: (_, record) => (
-                <>
-                    <Button type="link" onClick={() => handleTitle(record)}>{_}</Button>
-                </>
-            )
+            label: (
+                <div onClick={() => setOpenCreateDocument(true)}>
+                    新建笔记
+                </div>
+            ),
+            key: '0',
         },
         {
-            title: "类型",
-            dataIndex: "type",
-            key: "type",
-            width: 70,
-            render: (type) => <Type type={type} />
+            label: (
+                <div onClick={() => setOpenCreateCanvas(true)}>
+                    新建画布
+                </div>
+            ),
+            key: '1',
         },
-        {
-            title: "创建者",
-            dataIndex: "created_by_email",
-            key: "created_by_email",
-            render: (_, record) => (
-                <>
-                    {
-                        _ === userEmail ? (
-                            <>
-                                我
-                            </>
-                        ) : (
-                            <>
-                                <Button type="link" onClick={() => handleCreater(record)}>{_}</Button>
-                            </>
-                        )
-                    }
-                </>
-            )
-        },
-        {
-            title: "最后修改",
-            dataIndex: "updated_at",
-            key: "updated_at",
-            render: (text) => text ? new Date(text).toLocaleString() : "暂无更新时间"
-        },
-        {
-            title: "操作",
-            key: "action",
-            fixed: 'right',
-            width: 170,
-            render: (_, record) => (
-                <>
-                    <Button type="link" onClick={() => handleDetail(record)}>详情</Button>
-                    <Button type="link" danger onClick={() => handleAction(record)}>操作</Button>
-                </>
-            )
-        }
     ];
-
-    // 处理详情点击事件
-    const handleDetail = (record) => {
-        console.log("查看详情：", record);
-    };
-
-    // 处理操作按钮点击事件
-    const handleAction = (record) => {
-        console.log("执行操作：", record);
-    };
-
-    // 处理点击文档
-    const handleTitle = (record) => {
-        console.log("执行操作：", record);
-        if (record.type === "document") {
-            navigate(`/document/${record.id}`)
-        }
-    }
-
-    // 处理点击创建者
-    const handleCreater = (record)  => {
-        console.log("执行操作：", record);
-    }
-
     return (
         <div className={'allprojects_All'}>
             <div className={'allprojects_Topic'}>
-                所有项目
+                所有笔记
+                <Dropdown menu={{ items: downItem }} trigger={['click']}>
+                    <div className={'allprojects_Add'} onClick={(e) => e.preventDefault()}>
+                        <i className="ri-add-line"></i>
+                    </div>
+                </Dropdown>
+
+
             </div>
-            <div className="allprojects_List">
-                <Table
-                    columns={columns}
-                    dataSource={items}
-                    loading={loading}
-                    rowKey="id"
-                    scroll={{x: '100vw', y: '450px'}}
-                    pagination={{ pageSize: 10 }}
-                />
-            </div>
+            {
+                loading ? (
+                    <>
+                        <div className={'allprojects_Loading'}>
+                            <Spin />
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        {
+                            items.length > 0 ? (
+                                <>
+                                    <div className="allprojects_List">
+                                        {items.map(item =>
+                                            <NoteItem
+                                                title={item.title}
+                                                type={item.type}
+                                                key={item.id}
+                                                created_by_email={item.created_by_email}
+                                                updated_at={item.updated_at}
+                                                id={item.id}
+                                            />
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                                </>
+                            )
+                        }
+                    </>
+                )
+            }
+
+            {/*新建文档*/}
+            <AddDocument open={openCreateDocument} onClose={() => setOpenCreateDocument(false)} />
+            {/*新建画布*/}
+            <AddCanvas open={openCreateCanvas} onClose={() => setOpenCreateCanvas(false)} />
+
         </div>
     );
 };

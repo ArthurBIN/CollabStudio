@@ -4,8 +4,9 @@ import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch} from "@/store";
 import {checkTeam, setCurrentTeam} from "@/store/modules/teamsStore.tsx";
-import {Button, Modal, Skeleton} from 'antd';
+import {Button, Empty, Form, Input, message, Modal, Skeleton} from 'antd';
 import { PlusOutlined, CheckOutlined } from '@ant-design/icons';
+import {supabase} from "@/utils/supabaseClient.ts";
 interface LinkText {
     text: string;
     children: React.ReactNode;
@@ -69,15 +70,19 @@ const Sidebar = () => {
     const teams = useSelector(state => state.teams.teams);
     const currentTeamId = useSelector(state => state.teams.currentTeamId);
     const loading = useSelector(state => state.teams.loading);
+    const userId = useSelector(state => state.auth.user_id)
+
+    const [openCreateTeam, setOpenCreateTeam] = useState(false);
+    const [confirmLoading_Team, setConfirmLoading_Team] = useState(false);
+    const [form_addTeam] = Form.useForm();
 
     const [dropdownVisible, setDropdownVisible] = useState(false); // 控制下拉菜单的显示状态
 
     useEffect(() => {
         dispatch(checkTeam());
-    }, [dispatch]);
+    },[dispatch]);
 
     const currentTeam = teams.find(team => team.team_id === currentTeamId);
-
     const ToFilesRecents = () => {
         navigate("/files/recents");
     };
@@ -87,6 +92,12 @@ const Sidebar = () => {
             navigate(`/teams/all-projects`);
         }
     };
+
+    const ToTeamMembers = () => {
+        if (currentTeam) {
+            navigate(`/team/team-members`);
+        }
+    }
 
     const handleChangeTeam = (teamId: string) => {
         if (teamId === currentTeamId) return; // 避免重复点击
@@ -107,13 +118,59 @@ const Sidebar = () => {
         setDropdownVisible(!dropdownVisible);
     };
 
+    // 创建笔记本
+    const handleCreateTeamOk = async () => {
+        try {
+            const values = await form_addTeam.validateFields(); // 获取表单数据
+            setConfirmLoading_Team(true);
+
+            const { data: newTeam, error } = await supabase
+                .from("teams")
+                .insert([
+                    {
+                        name: values.teamName,
+                        created_by: userId
+                    },
+                ])
+                .select()
+                .single();
+
+            if (error) {
+                message.error(error.message);
+            } else {
+                await dispatch(setCurrentTeam(newTeam.id));
+                await supabase
+                    .from("team_members").
+                    insert([
+                        {
+                            team_id: newTeam.id,
+                            user_id: userId,
+                            role: "owner"
+                        },
+                    ])
+                    .select()
+                    .single();
+                message.success("创建成功！");
+                await dispatch(checkTeam(newTeam.id));
+            }
+        } catch (error) {
+            console.error(error);
+            message.error("创建笔记本失败！");
+        } finally {
+            setOpenCreateTeam(false);
+            setConfirmLoading_Team(false);
+            form_addTeam.resetFields();
+            setDropdownVisible(false)
+        }
+    }
+
     return (
         <div className="sidebar_All">
             <div className="sidebar_Logo">CollabStudio</div>
             <DivedLine />
 
             <LinkBox
-                text="最近"
+                text="开始"
                 path="/files/recents"
                 handleClick={ToFilesRecents}
             >
@@ -167,8 +224,9 @@ const Sidebar = () => {
                                             type="primary"
                                             icon={<PlusOutlined/>}
                                             style={{width: '100%', fontSize: 12}}
+                                            onClick={() => setOpenCreateTeam(true)}
                                         >
-                                            创建团队
+                                            创建笔记本
                                         </Button>
 
                                     </div>
@@ -176,20 +234,50 @@ const Sidebar = () => {
                             </div>
 
                             <LinkBox
-                                text="所有项目"
+                                text="所有笔记"
                                 path={currentTeam ? `/teams/all-projects` : "/files/recents"}
                                 handleClick={ToAllProjects}
                             >
                                 <i className="iconfont icon-xiangmu"></i>
                             </LinkBox>
+
+                            <LinkBox
+                                text="成员管理"
+                                path={"/team/team-members"}
+                                handleClick={ToTeamMembers}
+                            >
+                                <i className="iconfont icon-chengyuan"></i>
+                            </LinkBox>
                         </>
                     ) : (
-                        <p>没有加入任何团队</p>
+                        <Empty
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        >
+                            <Button type="primary" onClick={() => setOpenCreateTeam(true)}>创建笔记本</Button>
+                        </Empty>
                     )}
 
 
                 </>
             )}
+
+            <Modal
+                title="新建笔记本"
+                open={openCreateTeam}
+                onOk={handleCreateTeamOk}
+                confirmLoading={confirmLoading_Team}
+                onCancel={() => setOpenCreateTeam(false)}
+            >
+                <Form form={form_addTeam} layout="vertical">
+                    <Form.Item
+                        label="笔记本名称"
+                        name="teamName"
+                        rules={[{required: true, message: '请输入笔记本名称'}]}
+                    >
+                        <Input placeholder="请输入笔记本名称"/>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

@@ -7,6 +7,7 @@ import Recents from "@/pages/Recents";
 import Teams from "@/pages/Teams";
 import AllProjects from "@/pages/AllProjects";
 import Document from "@/pages/Document";
+import TeamMembers from "@/pages/TeamMembers";
 
 const ProtectedRoute = ({ element }: { element: JSX.Element }) => {
     const { token } = useSelector(state => state.auth)
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
             {
                 path: "teams/all-projects",
                 element: <AllProjects />
+            },
+            {
+                path: "team/team-members",
+                element: <TeamMembers />
             },
         ]
     },

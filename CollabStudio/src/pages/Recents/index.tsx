@@ -1,9 +1,11 @@
 import './index.scss'
 import {useEffect, useState} from "react";
-import {Button, Form, Input, message, Modal, Table} from "antd";
+import {Button, Empty, Table, Typography} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch} from "@/store";
-import {addNewCanvas, addNewDocument, getDocumentsAndCanvases} from "@/store/modules/documentsStore.tsx";
+import {getDocumentsAndCanvases} from "@/store/modules/documentsStore.tsx";
+import AddDocument from "@/components/AddDocument";
+import AddCanvas from "@/components/AddCanvas";
 
 interface CreateBtnProps {
     text: string;
@@ -29,13 +31,8 @@ const CreateBtn = (props: CreateBtnProps) => {
 const Recents = () => {
     const [openCreateDocument, setOpenCreateDocument] = useState(false);
     const [openCreateCanvas, setOpenCreateCanvas] = useState(false);
-    const [confirmLoading, setConfirmLoading] = useState(false);
-    const [confirmLoading_Canvas, setConfirmLoading_Canvas] = useState(false);
-    const [form] = Form.useForm();
-    const [form_addCanvas] = Form.useForm();
     const dispatch = useDispatch<AppDispatch>();
     const currentTeamId = useSelector(state => state.teams.currentTeamId);
-    const userId = useSelector(state => state.auth.user_id)
     const items = useSelector(state => state.documents.items)
     const loading = useSelector(state => state.documents.loading)
 
@@ -79,141 +76,60 @@ const Recents = () => {
         console.log("执行操作：", record);
     };
 
-    // 点击新建文档的ok
-    const handleCreateDocumentOk = async () => {
-        try {
-            const values = await form.validateFields(); // 获取表单数据
-            setConfirmLoading(true);
-
-            const res = await dispatch(
-                addNewDocument({
-                    userId,
-                    docName: values?.docName,
-                    teamId: currentTeamId,
-                    docDesc: values?.docDesc,
-                })
-            ).unwrap();
-
-            console.log(res);
-            if (res.id) {
-                message.success("创建成功！");
-                // 触发获取文档列表，更新 UI
-                dispatch(getDocumentsAndCanvases(currentTeamId));
-            }
-        } catch (error) {
-            console.error(error);
-            message.error("创建文档失败！");
-        } finally {
-            setOpenCreateDocument(false);
-            setConfirmLoading(false);
-            form.resetFields();
-        }
-    };
-
-    const handleCreateCanvasOk = async () => {
-        try {
-            const values = await form_addCanvas.validateFields(); // 获取表单数据
-            setConfirmLoading_Canvas(true);
-
-            const res = await dispatch(
-                addNewCanvas({
-                    userId,
-                    canvasName: values?.canvasName,
-                    teamId: currentTeamId,
-                })
-            ).unwrap();
-
-            console.log(res);
-            if (res.id) {
-                message.success("创建成功！");
-                // 触发获取文档列表，更新 UI
-                dispatch(getDocumentsAndCanvases(currentTeamId));
-            }
-        } catch (error) {
-            console.error(error);
-            message.error("创建画布失败！");
-        } finally {
-            setOpenCreateCanvas(false);
-            setConfirmLoading_Canvas(false);
-            form_addCanvas.resetFields();
-        }
-    };
-
     return (
         <div className={'recents_All'}>
             <div className={'recents_Topic'}>
                 最近
             </div>
-
-            <div className={'recents_CreateBtn'}>
-                <CreateBtn
-                    text={'新建文档'}
-                    iconBgColor={'#1677FF'}
-                    handleClick={() => setOpenCreateDocument(true)}
-                >
-                    <i className={'iconfont icon-wenjian-L'}></i>
-                </CreateBtn>
-                <CreateBtn
-                    text={'新建画布'}
-                    iconBgColor={'#8D4BF6'}
-                    handleClick={() => setOpenCreateCanvas(true)}
-                >
-                    <i className={'iconfont icon-huabi'}></i>
-                </CreateBtn>
-            </div>
-            <div className="recents_List">
-                <Table
-                    columns={columns}
-                    dataSource={items}
-                    loading={loading}
-                    rowKey="id"
-                    pagination={{ pageSize: 10 }}
-                />
-            </div>
+            {
+                currentTeamId ? (
+                    <>
+                        <div className={'recents_CreateBtn'}>
+                            <CreateBtn
+                                text={'新建文档'}
+                                iconBgColor={'#1677FF'}
+                                handleClick={() => setOpenCreateDocument(true)}
+                            >
+                                <i className={'iconfont icon-wenjian-L'}></i>
+                            </CreateBtn>
+                            <CreateBtn
+                                text={'新建画布'}
+                                iconBgColor={'#8D4BF6'}
+                                handleClick={() => setOpenCreateCanvas(true)}
+                            >
+                                <i className={'iconfont icon-huabi'}></i>
+                            </CreateBtn>
+                        </div>
+                        <div className="recents_List">
+                            <Table
+                                columns={columns}
+                                dataSource={items}
+                                loading={loading}
+                                rowKey="id"
+                                pagination={{pageSize: 10}}
+                            />
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <Empty
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                            description={
+                                <Typography.Text>
+                                    请先创建笔记本
+                                </Typography.Text>
+                            }
+                        >
+                        </Empty>
+                    </>
+                )
+            }
 
 
             {/*新建文档*/}
-            <Modal
-                title="新建文档"
-                open={openCreateDocument}
-                onOk={handleCreateDocumentOk}
-                confirmLoading={confirmLoading}
-                onCancel={() => setOpenCreateDocument(false)}
-            >
-                <Form form={form} layout="vertical">
-                    <Form.Item
-                        label="文档名称"
-                        name="docName"
-                        rules={[{required: true, message: '请输入文档名称'}]}
-                    >
-                        <Input placeholder="请输入文档名称"/>
-                    </Form.Item>
-                    <Form.Item
-                        label="文档介绍"
-                        name="docDesc"
-                    >
-                        <Input.TextArea placeholder="请输入文档介绍" rows={4}/>
-                    </Form.Item>
-                </Form>
-            </Modal>
+            <AddDocument open={openCreateDocument} onClose={() => setOpenCreateDocument(false)} />
             {/*新建画布*/}
-            <Modal
-                title="新建画布"
-                open={openCreateCanvas}
-                onOk={handleCreateCanvasOk}
-                confirmLoading={confirmLoading_Canvas}
-                onCancel={() => setOpenCreateCanvas(false)}
-            >
-                <Form form={form_addCanvas} layout="vertical">
-                    <Form.Item
-                        label="画布名称"
-                        name="canvasName"
-                        rules={[{required: true, message: '请输入文档名称'}]}
-                    >
-                        <Input placeholder="请输入文档名称"/>
-                    </Form.Item>
-                </Form>
-            </Modal>
+            <AddCanvas open={openCreateCanvas} onClose={() => setOpenCreateCanvas(false)} />
         </div>
 
     )

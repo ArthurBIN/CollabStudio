@@ -110,7 +110,7 @@ export const checkAndCreateTeam = (userId?: string) => async () => {
 
     // 3️⃣ 将用户加入该团队
     await supabase.from("team_members").insert([
-        { team_id: newTeam.id, user_id: userId },
+        { team_id: newTeam.id, user_id: userId, role: "1" },
     ]);
 
     return; // 返回新创建的团队 ID

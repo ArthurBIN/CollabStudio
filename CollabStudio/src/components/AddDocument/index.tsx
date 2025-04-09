@@ -35,16 +35,15 @@ const AddDocument = ({open, onClose}: Props) => {
             console.log(res);
             if (res.id) {
                 message.success("创建成功！");
+                closeOpen();
+                setConfirmLoading(false);
+                form.resetFields();
                 // 触发获取文档列表，更新 UI
                 dispatch(getDocumentsAndCanvases(currentTeamId));
             }
         } catch (error) {
             console.error(error);
             message.error("创建笔记失败！");
-        } finally {
-            closeOpen();
-            setConfirmLoading(false);
-            form.resetFields();
         }
     };
 

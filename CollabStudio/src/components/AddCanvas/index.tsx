@@ -31,16 +31,15 @@ const AddCanvas = ({open, onClose}: Props) => {
             console.log(res);
             if (res.id) {
                 message.success("创建成功！");
+                closeOpen()
+                setConfirmLoading_Canvas(false);
+                form_addCanvas.resetFields();
                 // 触发获取文档列表，更新 UI
                 dispatch(getDocumentsAndCanvases(currentTeamId));
             }
         } catch (error) {
             console.error(error);
             message.error("创建画布失败！");
-        } finally {
-            closeOpen()
-            setConfirmLoading_Canvas(false);
-            form_addCanvas.resetFields();
         }
     };
 

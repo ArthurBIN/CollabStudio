@@ -11,7 +11,7 @@ const store = configureStore({
         auth: authReducer,
         teams: teamsReducer,
         documents: documentsReducer,
-        document_item: documentItemReducer
+        document_item: documentItemReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
 });

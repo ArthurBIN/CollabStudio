@@ -14,9 +14,6 @@ const AllProjects = () => {
     const loading = useSelector(state => state.documents.loading);
     const items = useSelector(state => state.documents.items);
 
-    const storedAuth = JSON.parse(localStorage.getItem("sb-hwhmtdmefdcdhvqqmzgl-auth-token") || "{}");
-    const userEmail = storedAuth?.user.email
-
     const [openCreateDocument, setOpenCreateDocument] = useState(false);
     const [openCreateCanvas, setOpenCreateCanvas] = useState(false);
 

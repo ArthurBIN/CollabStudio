@@ -6,6 +6,7 @@ import { message } from "antd";
 interface AuthState {
     user_id: string | null;
     token: string | null;
+    email: string | null;
     loading: boolean;
 }
 
@@ -14,6 +15,7 @@ const storedAuth = JSON.parse(localStorage.getItem("sb-hwhmtdmefdcdhvqqmzgl-auth
 const initialState: AuthState = {
     user_id: storedAuth?.user?.id || null,
     token: storedAuth?.access_token || null,
+    email: storedAuth?.user?.email || null,
     loading: false,
 };
 

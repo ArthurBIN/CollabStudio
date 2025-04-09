@@ -6,17 +6,20 @@ import {message} from "antd";
 interface Team {
     team_id: string;
     name: string;
+    role: string
 }
 
 interface TeamsState {
     teams: Team[];  // 所有团队
     currentTeamId: string | null;  // 选中的团队 ID
+    currentTeamRole: string | null;  // 选中的团队权限
     loading: boolean;
 }
 
 const initialState: TeamsState = {
     teams: [],
     currentTeamId: null, // 默认无选中的团队
+    currentTeamRole: null,
     loading: false,
 };
 
@@ -29,11 +32,15 @@ const teamsStore = createSlice({
             if (action.payload.length > 0) {
                 const savedTeamId = localStorage.getItem("currentTeamId");
                 state.currentTeamId = savedTeamId || action.payload[0].team_id;
+
             }
         },
         setCurrentTeam: (state, action) => {
             state.currentTeamId = action.payload;
             localStorage.setItem("currentTeamId", action.payload);
+
+            const matchedTeamRole = state.teams?.find(t => t.team_id === action.payload);
+            state.currentTeamRole = matchedTeamRole.role
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
@@ -55,7 +62,7 @@ export const checkTeam = () => async (dispatch: AppDispatch) => {
 
         const { data: existingTeams, error } = await supabase
             .from("team_members")
-            .select("team_id, teams(name)")
+            .select("team_id, role, teams(name)")
             .eq("user_id", user_id);
 
         if (error) {
@@ -67,6 +74,7 @@ export const checkTeam = () => async (dispatch: AppDispatch) => {
         if (existingTeams?.length > 0) {
             const teams = existingTeams?.map(team => ({
                 team_id: team.team_id,
+                role: team.role,
                 name: team.teams?.name || "未知团队"
             }));
 

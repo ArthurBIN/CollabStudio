@@ -28,6 +28,20 @@ const CreateBtn = (props: CreateBtnProps) => {
     )
 }
 
+interface titleProp {
+    title: string
+}
+
+export const TitleBox = ({title}: titleProp) => {
+    return (
+        <>
+            <div className={'recents_Topic'}>
+                {title}
+            </div>
+        </>
+    )
+}
+
 const Recents = () => {
     const [openCreateDocument, setOpenCreateDocument] = useState(false);
     const [openCreateCanvas, setOpenCreateCanvas] = useState(false);
@@ -78,9 +92,7 @@ const Recents = () => {
 
     return (
         <div className={'recents_All'}>
-            <div className={'recents_Topic'}>
-                最近
-            </div>
+            <TitleBox title={'开始'} />
             {
                 currentTeamId ? (
                     <>

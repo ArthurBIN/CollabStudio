@@ -93,8 +93,6 @@ const TeamMembers = () => {
             },
         ];
 
-        const currentKey = record.role === 'read' ? '0' : '1';
-        if (key === currentKey) return; // 不触发处理逻辑
         const roleKey = key === '0' ? 'read' : 'edit';
         Modal.confirm({
             title: '确认修改用户权限？',
@@ -270,7 +268,7 @@ const AddMember = ({ open, onClose, refreshMembers }: addMemberProps) => {
             setSearchLoading(true);
             try {
                 const { data, error } = await supabase
-                    .from('user_profiles')
+                    .from('user_info')
                     .select('id, email')
                     .ilike('email', `%${value}%`);
 

@@ -20,11 +20,18 @@
   }
   &_Title {
     font-size: 14px;
-    width: 260px;
+    flex: 1;
+  }
+  &_CreatedBy {
+    font-size: 14px;
+    flex: 1;
+    color: #8A8F8D;
   }
   &_Time {
     font-size: 14px;
     color: #8A8F8D;
+    flex: 1;
     width: 240px;
+    float: right;
   }
 }

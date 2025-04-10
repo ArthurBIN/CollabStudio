@@ -14,9 +14,10 @@ interface Item {
     content?: string;
     introduce?: string;
     created_by: string;
-    created_by_email: string;
     created_at: string;
     updated_at?: string;
+    type: "document" | "canvas";
+    user_info: {email: string, username: string}
 }
 
 interface DocumentState {
@@ -49,13 +50,13 @@ export const getDocumentItem = (document_id: string) => async (dispatch: AppDisp
         dispatch(setLoading(true));
 
         const { data, error } = await supabase
-            .from('documents_with_users') // 视图
-            .select('*')
+            .from('projects')
+            .select('*, user_info(email, username)')
             .eq('id', document_id)
             .single();
 
         if (error) throw error;
-
+        console.log(data)
         dispatch(setDocument(data))
 
     } catch (err) {

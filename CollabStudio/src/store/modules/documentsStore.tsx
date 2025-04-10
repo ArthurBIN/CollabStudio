@@ -12,14 +12,13 @@ interface Item {
     id: string;
     team_id: string;
     title: string;
-    document_content?: string; // 文档内容
-    canvas_content?: object;   // 画布内容
+    content?: string;
     introduce?: string;
     created_by: string;
-    created_by_email: string;
     created_at: string;
     updated_at?: string;
-    type: "document" | "canvas"; // 用于区分类型
+    type: "document" | "canvas";
+    user_info: {email: string, username: string}
 }
 
 interface DocumentState {
@@ -53,12 +52,13 @@ export const getDocumentsAndCanvases = (teamId: string) => async (dispatch: AppD
         dispatch(setLoading(true));
 
         const { data, error } = await supabase
-            .from('documents_and_canvases') // 视图
-            .select('*')
+            .from('projects')
+            .select('*, user_info(email, username)')
             .eq('team_id', teamId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
+        console.log(data)
 
         dispatch(setDocumentsAndCanvases(data));
     } catch (err) {
@@ -76,13 +76,14 @@ export const addNewDocument = createAsyncThunk(
                { userId: string; docName: string; teamId: string; docDesc?: string }) => {
         try {
             const { data, error } = await supabase
-                .from("documents")
+                .from("projects")
                 .insert([
                     {
                         team_id: teamId,
                         title: docName,
                         created_by: userId,
                         introduce: docDesc || "",
+                        type: 'document'
                     },
                 ])
                 .select("id")
@@ -106,12 +107,13 @@ export const addNewCanvas = createAsyncThunk(
                { userId: string; canvasName: string; teamId: string;}) => {
         try {
             const { data, error } = await supabase
-                .from("shared_canvases")
+                .from("projects")
                 .insert([
                     {
                         team_id: teamId,
                         title: canvasName,
                         created_by: userId,
+                        type: 'canvas'
                     },
                 ])
                 .select("id")

@@ -13,7 +13,7 @@ const AllProjects = () => {
     const currentTeamId = useSelector(state => state.teams.currentTeamId);
     const loading = useSelector(state => state.documents.loading);
     const items = useSelector(state => state.documents.items);
-
+    const currentTeamRole = useSelector(state => state.teams.currentTeamRole)
     const [openCreateDocument, setOpenCreateDocument] = useState(false);
     const [openCreateCanvas, setOpenCreateCanvas] = useState(false);
 
@@ -46,11 +46,15 @@ const AllProjects = () => {
         <div className={'allprojects_All'}>
             <div className={'allprojects_Topic'}>
                 所有笔记
-                <Dropdown menu={{ items: downItem }} trigger={['click']}>
-                    <div className={'allprojects_Add'} onClick={(e) => e.preventDefault()}>
-                        <i className="ri-add-line"></i>
-                    </div>
-                </Dropdown>
+                {
+                    currentTeamRole !== "read" &&
+                        <Dropdown menu={{ items: downItem }} trigger={['click']}>
+                            <div className={'allprojects_Add'} onClick={(e) => e.preventDefault()}>
+                                <i className="ri-add-line"></i>
+                            </div>
+                        </Dropdown>
+                }
+
 
 
             </div>
@@ -72,7 +76,8 @@ const AllProjects = () => {
                                                 title={item.title}
                                                 type={item.type}
                                                 key={item.id}
-                                                created_by_email={item.created_by_email}
+                                                created_by_email={item.user_info.email}
+                                                created_by_username={item.user_info.username}
                                                 updated_at={item.updated_at}
                                                 id={item.id}
                                             />

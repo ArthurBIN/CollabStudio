@@ -6,7 +6,8 @@ import {message} from "antd";
 interface Team {
     team_id: string;
     name: string;
-    role: string
+    role: string,
+    created_username: string
 }
 
 interface TeamsState {
@@ -40,7 +41,9 @@ const teamsStore = createSlice({
             localStorage.setItem("currentTeamId", action.payload);
 
             const matchedTeamRole = state.teams?.find(t => t.team_id === action.payload);
-            state.currentTeamRole = matchedTeamRole.role
+            if (matchedTeamRole) {
+                state.currentTeamRole = matchedTeamRole.role
+            }
         },
         setLoading: (state, action) => {
             state.loading = action.payload;
@@ -48,6 +51,7 @@ const teamsStore = createSlice({
     },
 });
 
+// 更新用户笔记本数据
 export const checkTeam = () => async (dispatch: AppDispatch) => {
     try {
         dispatch(setLoading(true));
@@ -61,8 +65,8 @@ export const checkTeam = () => async (dispatch: AppDispatch) => {
         }
 
         const { data: existingTeams, error } = await supabase
-            .from("team_members")
-            .select("team_id, role, teams(name)")
+            .from("team_user_details")
+            .select("team_id, role, name, username")
             .eq("user_id", user_id);
 
         if (error) {
@@ -70,12 +74,14 @@ export const checkTeam = () => async (dispatch: AppDispatch) => {
             dispatch(setLoading(false));
             return;
         }
+        console.log("existingTeams", existingTeams)
 
         if (existingTeams?.length > 0) {
             const teams = existingTeams?.map(team => ({
                 team_id: team.team_id,
                 role: team.role,
-                name: team.teams?.name || "未知团队"
+                name: team.name || "未知团队",
+                created_username: team.username
             }));
 
             dispatch(setTeams(teams));

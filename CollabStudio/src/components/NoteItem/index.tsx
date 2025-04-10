@@ -1,11 +1,13 @@
 import './index.scss'
-import {Button} from "antd";
+import {Button, Tooltip} from "antd";
 import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 interface Props {
     id: string,
     title: string,
     type: string,
     created_by_email: string,
+    created_by_username: string
     updated_at: string
 }
 
@@ -32,8 +34,9 @@ const Type = (props: iconType) => {
 };
 
 const NoteItem = (props: Props) => {
-    const { id, title, type, created_by_email, updated_at } = props
+    const { id, title, type, created_by_email, created_by_username, updated_at } = props
     const navigate = useNavigate()
+    const myName = useSelector(state => state.auth.username)
     const handleTitle = () => {
         if (type === "document") {
             navigate(`/document/${id}`)
@@ -50,6 +53,33 @@ const NoteItem = (props: Props) => {
                 <Button color="primary" variant="link" onClick={handleTitle}>
                     {title}
                 </Button>
+            </div>
+            {/*创建者*/}
+            <div className={'NoteItem_CreatedBy'}>
+                {
+                    myName === created_by_username ?
+                        <>
+                            <Tooltip placement="top" title={created_by_email}>
+                                <Button
+                                    color="default"
+                                    variant="link"
+                                >
+                                    我
+                                </Button>
+                            </Tooltip>
+                        </>
+                        :
+                        <>
+                            <Tooltip placement="top" title={created_by_email}>
+                                <Button
+                                    color="default"
+                                    variant="link"
+                                >
+                                    {created_by_username}
+                                </Button>
+                            </Tooltip>
+                        </>
+                }
             </div>
             {/*更新时间*/}
             <div className={'NoteItem_Time'}>

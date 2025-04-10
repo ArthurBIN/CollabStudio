@@ -71,7 +71,7 @@ const Sidebar = () => {
     const currentTeamId = useSelector(state => state.teams.currentTeamId);
     const loading = useSelector(state => state.teams.loading);
     const userId = useSelector(state => state.auth.user_id)
-
+    const userName = useSelector(state => state.auth.username)
     const [openCreateTeam, setOpenCreateTeam] = useState(false);
     const [confirmLoading_Team, setConfirmLoading_Team] = useState(false);
     const [form_addTeam] = Form.useForm();
@@ -150,8 +150,8 @@ const Sidebar = () => {
                     ])
                     .select()
                     .single();
+                await dispatch(checkTeam());
                 message.success("创建成功！");
-                await dispatch(checkTeam(newTeam.id));
             }
         } catch (error) {
             console.error(error);
@@ -205,6 +205,13 @@ const Sidebar = () => {
                                             >
                                                 <i className={'iconfont icon-pingtaiiconhuizong_huaban1fuben5'}></i>
                                                 {team.name}
+                                                {
+                                                    team.created_username === userName ?
+                                                        <> (我)</>
+                                                        :
+                                                        <> ({team.created_username})</>
+                                                }
+                                                {}
                                                 {
                                                     team.team_id === currentTeamId ?
                                                         <div className={'sidebar_DropDown_Item_Right'}>

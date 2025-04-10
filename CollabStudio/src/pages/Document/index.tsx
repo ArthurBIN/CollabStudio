@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import CharacterCount from '@tiptap/extension-character-count'
 import Highlight from '@tiptap/extension-highlight'
 import TaskItem from '@tiptap/extension-task-item'
@@ -25,8 +25,7 @@ const Document = () => {
     const dispatch = useDispatch<AppDispatch>();
     const documentData = useSelector(state => state.document_item.items);
     const [status, setStatus] = useState("未保存");
-    const storedAuth = JSON.parse(localStorage.getItem("sb-hwhmtdmefdcdhvqqmzgl-auth-token") || "{}");
-    const email = storedAuth.user.email
+    const email = useSelector(state => state.auth.email)
     // 1️⃣ 使用 useRef() 让 ydoc 和 provider 只初始化一次
     const ydocRef = useRef<Y.Doc | null>(null);
     const providerRef = useRef<WebsocketProvider | null>(null);
@@ -77,7 +76,7 @@ const Document = () => {
                 color: `hsl(${Math.random() * 360}, 100%, 75%)`
             });
         }
-    }, [documentData.created_by_email]); // 监听变化
+    }, [documentData.user_info]); // 监听变化
 
     useEffect(() => {
         const provider = providerRef.current;
@@ -105,7 +104,7 @@ const Document = () => {
             if (!document_id) return;
 
             const { error } = await supabase
-                .from("documents")
+                .from("projects")
                 .update([{ content: content }])
                 .eq('id', document_id); // 🔄 存储内容
 

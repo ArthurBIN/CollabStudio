@@ -1,10 +1,10 @@
 import './index.scss'
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import { getDocumentsAndCanvases } from "@/store/modules/documentsStore.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/store";
 import NoteItem from "@/components/NoteItem";
-import {Dropdown, Empty, Spin} from "antd";
+import {Dropdown, Empty, Skeleton, Spin} from "antd";
 import AddDocument from "@/components/AddDocument";
 import AddCanvas from "@/components/AddCanvas";
 
@@ -54,8 +54,6 @@ const AllProjects = () => {
                             </div>
                         </Dropdown>
                 }
-
-
 
             </div>
             {

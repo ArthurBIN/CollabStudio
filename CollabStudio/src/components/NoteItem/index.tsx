@@ -59,14 +59,12 @@ const NoteItem = (props: Props) => {
                 {
                     myName === created_by_username ?
                         <>
-                            <Tooltip placement="top" title={created_by_email}>
-                                <Button
-                                    color="default"
-                                    variant="link"
-                                >
-                                    我
-                                </Button>
-                            </Tooltip>
+                            <Button
+                                color="default"
+                                variant="link"
+                            >
+                                我
+                            </Button>
                         </>
                         :
                         <>

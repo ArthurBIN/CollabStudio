@@ -126,20 +126,15 @@ export default function MenuBar ({ editor }: { editor: Editor}) {
 
   return (
       <div className="editor__header">
-        {items.map(( item) => (
-            <>
+        {items.map(( item, index) => (
+            <div key={index}>
               {
-                item?.type === 'divider' ? (
-                    <>
-                      <div className="divider"/>
-                    </>
-                ) : (
-                    <>
-                      <MenuItem {...item} />
-                    </>
-                )
+                item?.type === 'divider' ?
+                    <div className="divider" />
+                    :
+                    <MenuItem {...item} />
               }
-            </>
+            </div>
         ))}
       </div>
   )

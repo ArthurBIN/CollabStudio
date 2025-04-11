@@ -56,7 +56,6 @@ export const getDocumentItem = (document_id: string) => async (dispatch: AppDisp
             .single();
 
         if (error) throw error;
-        console.log(data)
         dispatch(setDocument(data))
 
     } catch (err) {

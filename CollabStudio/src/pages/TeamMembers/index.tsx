@@ -9,7 +9,8 @@ interface memberProps {
     user_id: string,
     role: string,
     email: string,
-    joined_at: string
+    joined_at: string,
+    username: string
 }
 
 const TeamMembers = () => {
@@ -20,6 +21,8 @@ const TeamMembers = () => {
 
     const userEmail = useSelector(state => state.auth.email)
     const userRole = useSelector(state => state.teams.currentTeamRole)
+    const myName = useSelector(state => state.auth.username)
+
     const getTeamMembers = async () => {
         if (!currentTeamId) return;
 
@@ -27,7 +30,7 @@ const TeamMembers = () => {
         try {
             const {data, error} = await supabase
                 .from('members_with_users')
-                .select('user_id, role, email, joined_at')
+                .select('user_id, role, email, joined_at, username')
                 .eq('team_id', currentTeamId)
 
             if (error) {
@@ -128,7 +131,28 @@ const TeamMembers = () => {
             title: '用户',
             dataIndex: 'email',
             key: 'email',
-            render: (text: string) => <span>{text}</span>,
+            render: (_, record: memberProps) => (
+                <>
+                    {
+                        record.username === myName ?
+                            <Button
+                                color="default"
+                                variant="link"
+                            >
+                                我
+                            </Button>
+                            :
+                            <Tooltip placement="top" title={record.email}>
+                                <Button
+                                    color="default"
+                                    variant="link"
+                                >
+                                    {record.username}
+                                </Button>
+                            </Tooltip>
+                    }
+                </>
+            )
         },
         {
             title: '权限',

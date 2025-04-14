@@ -1,9 +1,10 @@
 import './index.scss'
 import {TitleBox} from "@/pages/Recents";
 import {Button, Dropdown, Form, Input, message, Modal, Table, Tooltip} from "antd";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {supabase} from "@/utils/supabaseClient.ts";
 import {useEffect, useState} from "react";
+import {handleGetTeamMembers, setItems, setLoading} from "@/store/modules/teamMembersStore.tsx";
 
 interface memberProps {
     user_id: string,
@@ -15,9 +16,13 @@ interface memberProps {
 
 const TeamMembers = () => {
     const currentTeamId = useSelector(state => state.teams.currentTeamId);
-    const [loading, setLoading] = useState(false)
-    const [membersList, setMembersList] = useState<memberProps[]>([])
     const [open, setOpen] = useState<boolean>(false)
+
+    // 获取teamMemberStore中的状态
+    const loading = useSelector(state => state.team_members.loading)
+    const membersList = useSelector(state => state.team_members.items)
+
+    const dispatch = useDispatch()
 
     const userEmail = useSelector(state => state.auth.email)
     const userRole = useSelector(state => state.teams.currentTeamRole)
@@ -25,29 +30,7 @@ const TeamMembers = () => {
 
     const getTeamMembers = async () => {
         if (!currentTeamId) return;
-
-        setLoading(true)
-        try {
-            const {data, error} = await supabase
-                .from('members_with_users')
-                .select('user_id, role, email, joined_at, username')
-                .eq('team_id', currentTeamId)
-
-            if (error) {
-                message.error(error.message)
-                return;
-            }
-
-            setMembersList(data)
-
-        } catch (err) {
-            console.error(err);
-            const msg = err instanceof Error ? err.message : '未知错误';
-            message.error(msg);
-        }
-        finally {
-            setLoading(false)
-        }
+        await dispatch(handleGetTeamMembers(currentTeamId))
     }
 
     useEffect(() => {

@@ -11,7 +11,8 @@ import {getDocumentItem} from "@/store/modules/documentItemStore.tsx";
 import {supabase} from "@/utils/supabaseClient.ts";
 import {useDocumentPermission} from "@/hooks/useDocumentPermission.ts";
 import {useCollaborativeEditor} from "@/hooks/useCollaborativeEditor.ts";
-import {Skeleton, Spin} from "antd";
+import {Spin} from "antd";
+import CollaboratorPopover from "@/components/CollaboratorPopover";
 
 const Document = () => {
     const { document_id } = useParams();
@@ -21,6 +22,9 @@ const Document = () => {
     const email = useSelector(state => state.auth.email)
     const userId = useSelector(state => state.auth.user_id)
 
+    // 监测页面是否完成初始化
+    const [hasInitializedContent, setHasInitializedContent] = useState(false);
+
     const { permission, loading: permissionLoading } = useDocumentPermission(document_id, userId);
     const [loading, setLoading] = useState<boolean>(true);
     // 使用自定义的 hook 来初始化编辑器
@@ -29,23 +33,12 @@ const Document = () => {
         docId: document_id,
         user: { email }
     });
-
-    // 获取文章内容
-    useEffect(() => {
-        handleGetDocument();
-    }, []);
-
-    useEffect(() => {
-        if (editor) {
-            editor.commands.setContent(documentData.content);
-        }
-    }, [documentData, editor]);
-
     const handleGetDocument = async () => {
         if (document_id) {
             try {
                 setLoading(true);
                 await dispatch(getDocumentItem(document_id));
+                setHasInitializedContent(true);
             } catch (error) {
                 console.error("获取文档失败:", error);
             } finally {
@@ -53,15 +46,46 @@ const Document = () => {
             }
         }
     };
+    // 获取文章内容
+    useEffect(() => {
+        handleGetDocument();
+    }, []);
 
-    // 自动保存功能
+    // 编辑文档内容
+    useEffect(() => {
+        if (
+            editor &&
+            documentData.content &&
+            hasInitializedContent
+        ) {
+            editor.commands.setContent(documentData.content);
+        }
+    }, [documentData, editor]);
+
+
+    // 自动保存
+    useEffect(() => {
+        if (!editor) return;
+
+        const updateHandler = () => {
+            if (!hasInitializedContent) return;
+            setStatus("正在保存中...");
+            saveDocument(editor.getHTML());
+        };
+
+        editor.on("update", updateHandler);
+
+        return () => {
+            editor.off("update", updateHandler);
+        };
+    }, [editor, hasInitializedContent]);
     const saveDocument = useRef(
         debounce(async (content) => {
             if (!document_id) return;
 
             const { error } = await supabase
                 .from("projects")
-                .update([{ content: content }])
+                .update([{ content }])
                 .eq('id', document_id);
 
             if (error) {
@@ -72,15 +96,6 @@ const Document = () => {
             }
         }, 3000)
     ).current;
-
-    // 自动保存
-    useEffect(() => {
-        if (!editor) return;
-        editor.on("update", () => {
-            setStatus("正在保存中...");
-            saveDocument(editor.getHTML());
-        });
-    }, [editor]);
 
     return (
         <div className="editor">
@@ -104,6 +119,10 @@ const Document = () => {
                                 <i className="ri-cloud-line"></i>
                                 {status}
                             </div>
+                            <div className={'editor_TB_Btn'}>
+                                <CollaboratorPopover />
+                            </div>
+
                         </div>
 
                         {/* 工具栏 */}

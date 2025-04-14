@@ -5,8 +5,6 @@ import {createSlice} from "@reduxjs/toolkit";
 import {supabase} from "@/utils/supabaseClient.ts";
 import {message} from "antd";
 import {AppDispatch} from "@/store";
-
-// 定义数据结构
 interface Item {
     id: string;
     team_id: string;
@@ -30,6 +28,8 @@ const initialState: DocumentState = {
     items: {} as Item,
     loading: false,
 };
+// 定义数据结构
+
 
 
 const documentItemStore = createSlice({

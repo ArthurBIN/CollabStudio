@@ -1,0 +1,31 @@
+.team_member_item {
+
+
+  &_Info {
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+
+    &_UE {
+      display: flex;
+      flex-direction: column;
+      background-color: #fff;
+      font-size: 13px;
+      margin-left: 8px;
+      color: #494949;
+    }
+
+    &_Role {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 20px;
+      color: #8B8F8D;
+    }
+  }
+
+  &_Info:nth-child(n+1) {
+    margin-top: 10px;
+  }
+}

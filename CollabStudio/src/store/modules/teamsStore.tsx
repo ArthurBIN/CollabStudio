@@ -17,9 +17,11 @@ interface TeamsState {
     loading: boolean;
 }
 
+const currentTeamId = localStorage.getItem("currentTeamId") || ""
+
 const initialState: TeamsState = {
     teams: [],
-    currentTeamId: null, // 默认无选中的团队
+    currentTeamId: currentTeamId, // 默认无选中的团队
     currentTeamRole: null,
     loading: false,
 };

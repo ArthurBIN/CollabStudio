@@ -169,6 +169,7 @@
   height: 50px;
   display: flex;
   align-items: center;
+  position: relative;
   .editor_TB_Title {
     font-size: 14px;
     color: #d0d0d0;
@@ -181,6 +182,26 @@
     margin-left: 10px;
     i {
       margin-right: 5px;
+    }
+  }
+
+  .editor_TB_Btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
+    .editor_TB_BtnItem {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: #424242;
+      }
     }
   }
 }

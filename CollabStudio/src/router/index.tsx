@@ -8,6 +8,7 @@ import Teams from "@/pages/Teams";
 import AllProjects from "@/pages/AllProjects";
 import Document from "@/pages/Document";
 import TeamMembers from "@/pages/TeamMembers";
+import Canvas from "@/pages/Canvas";
 
 const ProtectedRoute = ({ element }: { element: JSX.Element }) => {
     const { token } = useSelector(state => state.auth)
@@ -43,7 +44,11 @@ export const router = createBrowserRouter([
     },
     {
         path: "/document/:document_id",
-        element: <Document />
+        element: <ProtectedRoute element={<Document />} />,
+    },
+    {
+        path: "/canvas/:canvas_id",
+        element: <ProtectedRoute element={<Canvas />} />,
     },
     {
         path: "/login",

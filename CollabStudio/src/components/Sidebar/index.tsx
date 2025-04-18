@@ -1,12 +1,13 @@
 import './index.scss'
 import {useLocation, useNavigate} from "react-router-dom";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch} from "@/store";
 import {checkTeam, setCurrentTeam} from "@/store/modules/teamsStore.tsx";
-import {Button, Empty, Form, Input, message, Modal, Skeleton} from 'antd';
-import { PlusOutlined, CheckOutlined } from '@ant-design/icons';
+import {Avatar, Button, Divider, Empty, Form, Input, message, Modal, Popover, Skeleton} from 'antd';
+import {PlusOutlined, CheckOutlined, SettingOutlined, LogoutOutlined} from '@ant-design/icons';
 import {supabase} from "@/utils/supabaseClient.ts";
+import { UserOutlined } from '@ant-design/icons';
 interface LinkText {
     text: string;
     children: React.ReactNode;
@@ -72,6 +73,8 @@ const Sidebar = () => {
     const loading = useSelector(state => state.teams.loading);
     const userId = useSelector(state => state.auth.user_id)
     const userName = useSelector(state => state.auth.username)
+    const email = useSelector(state => state.auth.email)
+    const bgc = useSelector(state => state.auth.bgc)
     const [openCreateTeam, setOpenCreateTeam] = useState(false);
     const [confirmLoading_Team, setConfirmLoading_Team] = useState(false);
     const [form_addTeam] = Form.useForm();
@@ -164,9 +167,81 @@ const Sidebar = () => {
         }
     }
 
+    const userInfoContent = (
+        <div className={'userInfoContent'}>
+            <div className={'userInfoContent_Avatar'}>
+                <Avatar
+                    style={{backgroundColor: `${bgc}`, cursor: "pointer"}}
+                    icon={<UserOutlined/>}
+                    size={36}
+                />
+                <div className={'userInfoContent_Avatar_UE'}>
+                    <div>{userName}</div>
+                    <div>{email}</div>
+                </div>
+
+            </div>
+
+            <div style={{width: 284, margin: '0 auto'}}>
+                <Divider style={{marginTop: 6, marginBottom: 6}}/>
+            </div>
+
+            <Button
+                type="text"
+                block
+                icon={<SettingOutlined/>}
+                size={'large'}
+                style={{
+                    justifyContent: "flex-start",
+                    textAlign: "left",
+                    paddingLeft: 12,
+                    fontSize: 14
+                }}
+            >
+                设置
+            </Button>
+
+            <div style={{width: 284, margin: '0 auto'}}>
+                <Divider style={{marginTop: 6, marginBottom: 6}}/>
+            </div>
+
+            <Button
+                type="text"
+                block
+                icon={<LogoutOutlined />}
+                size={'large'}
+                danger
+                style={{
+                    justifyContent: "flex-start",
+                    textAlign: "left",
+                    paddingLeft: 12,
+                    fontSize: 14
+                }}
+            >
+                退出登录
+            </Button>
+        </div>
+    )
+
     return (
         <div className="sidebar_All">
-            <div className="sidebar_Logo">CollabStudio</div>
+            <div className="sidebar_Logo">
+                CollabStudio
+                <div className={'sidebar_User'}>
+                    <Popover
+                        placement="bottomLeft"
+                        content={userInfoContent}
+                        arrow={false}
+                    >
+                        <Avatar
+                            style={{ backgroundColor: `${bgc}`, cursor: "pointer" }}
+                            icon={<UserOutlined />}
+                            size={24}
+                        />
+                    </Popover>
+
+                </div>
+            </div>
             <DivedLine />
 
             <LinkBox

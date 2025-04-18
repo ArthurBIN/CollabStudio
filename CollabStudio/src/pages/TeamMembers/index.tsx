@@ -4,7 +4,7 @@ import {Button, Dropdown, Form, Input, message, Modal, Table, Tooltip} from "ant
 import {useDispatch, useSelector} from "react-redux";
 import {supabase} from "@/utils/supabaseClient.ts";
 import {useEffect, useState} from "react";
-import {handleGetTeamMembers, setItems, setLoading} from "@/store/modules/teamMembersStore.tsx";
+import {handleGetTeamMembers} from "@/store/modules/teamMembersStore.tsx";
 
 interface memberProps {
     user_id: string,
@@ -24,9 +24,9 @@ const TeamMembers = () => {
 
     const dispatch = useDispatch()
 
-    const userEmail = useSelector(state => state.auth.email)
     const userRole = useSelector(state => state.teams.currentTeamRole)
     const myName = useSelector(state => state.auth.username)
+    const userEmail = useSelector(state => state.auth.email)
 
     const getTeamMembers = async () => {
         if (!currentTeamId) return;
@@ -169,7 +169,7 @@ const TeamMembers = () => {
             {
                 title: '操作',
                 key: 'operation',
-                render: (_: any, record: memberProps) => {
+                render: (_, record: memberProps) => {
                     if (userEmail === record.email) return null;
 
                     const dropdownItems = record.role === 'read'

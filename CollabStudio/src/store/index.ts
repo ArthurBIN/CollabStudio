@@ -4,6 +4,7 @@ import teamsReducer from "@/store/modules/teamsStore.tsx";
 import documentsReducer from "@/store/modules/documentsStore.tsx";
 import documentItemReducer from "@/store/modules/documentItemStore.tsx";
 import teamMembersReducer from "@/store/modules/teamMembersStore.tsx";
+import collaborationNoteReducer from "@/store/modules/collaborationNoteStore.tsx";
 import { thunk } from "redux-thunk";
 
 
@@ -14,6 +15,7 @@ const store = configureStore({
         documents: documentsReducer,
         document_item: documentItemReducer,
         team_members: teamMembersReducer,
+        collaboration_note: collaborationNoteReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
 });

@@ -3,7 +3,7 @@ import {useParams} from "react-router-dom";
 import React, {useState} from "react";
 import {handleGetTeamMembers} from "@/store/modules/teamMembersStore.tsx";
 import {supabase} from "@/utils/supabaseClient.ts";
-import {AutoComplete, Avatar, Input, Modal, Popover, Tooltip} from "antd";
+import {AutoComplete, Avatar, Dropdown, Empty, Input, message, Modal, Popover, Spin, Tooltip} from "antd";
 import './index.scss'
 
 const CollaboratorPopover = () => {
@@ -14,26 +14,62 @@ const CollaboratorPopover = () => {
 
     const [popoverVisible, setPopoverVisible] = useState(false);
 
+    // teamMembers
     const teamMembersList = useSelector(state => state.team_members.items);
+    const loading = useSelector(state => state.team_members.loading)
+
+    // 查询协作者信息文档
+    const [options, setOptions] = useState([]);
+
+    // 协作者集合
+    const [collaboratorsList, setCollaboratorsList] = useState([])
+    // 获取协作者信息文档状态
+    const [collaboratorsLoading, setCollaboratorsLoading] = useState<boolean>(false)
 
 
+    const [inputValue, setInputValue] = useState('');
+
+    // 获取文档团队成员信息
     const getTeamMembers = async () => {
-        console.log(currentTeamId)
         if (!currentTeamId) return;
-        console.log(1)
         await dispatch(handleGetTeamMembers(currentTeamId));
     };
-
     const handlePopoverChange = (visible: boolean) => {
         setPopoverVisible(visible);
         if (visible) {
             getTeamMembers(); // 仅在Popover打开时调用
+            handleGetCollaborators();
         }
     };
 
+    // 获取协作者信息
+    const handleGetCollaborators = async () => {
+        try {
+            if (!document_id) {
+                message.error("文档 ID 无效");
+                return;
+            }
+            setCollaboratorsLoading(true)
 
-    // 协作者信息文档
-    const [options, setOptions] = useState([]);
+            const {data, error} = await supabase
+                .from('project_collaborators')
+                .select('id, user_id, permission, user_info:user_id(email, username)')
+                .eq('project_id', document_id)
+
+            if (error) {
+                message.error(error.message)
+                return;
+            }
+            setCollaboratorsList(data || []);
+
+        } catch (err) {
+            console.error(err);
+            const msg = err instanceof Error ? err.message : '未知错误';
+            message.error(msg);
+        } finally {
+            setCollaboratorsLoading(false)
+        }
+    }
 
     // 处理输入协作者邮箱查询逻辑
     const handleCollaboratorsSearch = async (searchText: string) => {
@@ -70,8 +106,8 @@ const CollaboratorPopover = () => {
                 return {
                     label: (
                         <span style={isTeamMember ? { color: '#aaa' } : {}}>
-                        {item.email} {isTeamMember ? '(团队成员)' : ''}
-                    </span>
+                            {item.email} {isTeamMember ? '(团队成员)' : ''}
+                        </span>
                     ),
                     value: item.email,
                     user_id: item.id,
@@ -93,53 +129,43 @@ const CollaboratorPopover = () => {
     };
 
     // 处理添加协作者逻辑
-    const handleAddCollaborators = (email: string, user_id: string) => {
-        Modal.confirm({
-            title: `确认邀请该用户？`,
-            content: `您将邀请 ${email} 成为该文档的协作者，权限为只读（read）。`,
-            okText: '确认',
-            cancelText: '取消',
-            onOk: async () => {
-                try {
-                    const { data, error } = await supabase
-                        .from("project_collaborators")
-                        .insert([{
-                            project_id: document_id,
-                            user_id: user_id,
-                            permission: 'read',
-                            invited_by: userId
-                        }]);
+    const handleAddCollaborators = async (email: string, user_id: string) => {
+        // Modal.confirm({
+        //     title: `确认邀请该用户？`,
+        //     content: `您将邀请 ${email} 成为该文档的协作者，权限为只读（read）。`,
+        //     okText: '确认',
+        //     cancelText: '取消',
+        //     onOk: async () => {
+        //
+        //     }
+        // });
+        try {
+            const {data, error} = await supabase
+                .from("project_collaborators")
+                .insert([{
+                    project_id: document_id,
+                    user_id: user_id,
+                    permission: 'read',
+                    invited_by: userId
+                }]);
 
-                    if (error) {
-                        console.error("添加协作者失败:", error);
-                        if (error.message === 'duplicate key value violates unique constraint "project_collaborators_project_id_user_id_key"') {
-                            Modal.error({
-                                title: "添加失败",
-                                content: "该用户已经添加为该文档协作者",
-                            });
-                        } else {
-                            Modal.error({
-                                title: "添加失败",
-                                content: error.message,
-                            });
-                        }
-
-                    } else {
-                        console.log("协作者添加成功:", data);
-                        Modal.success({
-                            title: "邀请成功",
-                            content: `${email} 已被成功邀请为协作者。`
-                        });
-                    }
-                } catch (err) {
-                    console.error("添加协作者异常:", err);
-                    Modal.error({
-                        title: "发生错误",
-                        content: "无法添加协作者，请稍后再试。",
-                    });
+            if (error) {
+                console.error("添加协作者失败:", error);
+                if (error.code === '23505') {
+                    message.error("该用户已经添加为该文档协作者")
+                } else {
+                    message.error(error.message)
                 }
+
+            } else {
+                console.log("协作者添加成功:", data);
+                await handleGetCollaborators();
+                message.success("邀请成功")
             }
-        });
+        } catch (err) {
+            console.error("添加协作者异常:", err);
+            message.error("发生错误")
+        }
     };
 
 
@@ -147,21 +173,36 @@ const CollaboratorPopover = () => {
         <div>
             <AutoComplete
                 popupMatchSelectWidth={252}
-                style={{ width: 300 }}
+                style={{width: 400}}
                 options={options}
+                value={inputValue}
+                onChange={setInputValue}
                 onSelect={(value) => {
                     const selectedOption = options.find(option => option.value === value);
                     if (selectedOption && !selectedOption.disabled) {
                         handleAddCollaborators(selectedOption.value, selectedOption.user_id);
                     }
+                    setInputValue(''); // 清空输入
                 }}
 
                 onSearch={handleCollaboratorsSearch}
                 size="large"
             >
-                <Input size="middle" placeholder="输入用户邮箱邀请协作" />
+                <Input size="middle" placeholder="输入用户邮箱邀请协作"/>
             </AutoComplete>
-            <TeamMembers memberList={teamMembersList} />
+            <div className={'team_member_Title'}>文档协作者</div>
+
+            <LoadingWrapper loading={collaboratorsLoading}>
+                <DocumentCollaborators
+                    collaboratorsList={collaboratorsList}
+                    onUpdateCollaborators={handleGetCollaborators}
+                />
+            </LoadingWrapper>
+
+            <div className={'team_member_Title'}>文档团队成员</div>
+            <LoadingWrapper loading={loading}>
+                <TeamMemberList  memberList={teamMembersList}/>
+            </LoadingWrapper>
         </div>
     );
 
@@ -169,9 +210,10 @@ const CollaboratorPopover = () => {
     return (
         <Popover
             placement="bottomRight"
-            title="文档协作者"
+            title="添加协作者"
             content={addCollaboratorsContent}
             trigger="click"
+            arrow={false}
             open={popoverVisible}
             onOpenChange={handlePopoverChange}
         >
@@ -184,55 +226,159 @@ const CollaboratorPopover = () => {
     );
 };
 
-
-interface DocumentMemberItemProps {
+// 协作者内容
+interface DocumentCollaboratorsItemProps {
     id: string;
-    role: string;
-    email: string;
-    username: string
+    permission: string;
+    user_info: {
+        email: string,
+        username: string
+    }
+    onUpdateCollaborators: () => void;
+}
+interface DocumentCollaboratorsListProps {
+    collaboratorsList: DocumentCollaboratorsItemProps[];
+    onUpdateCollaborators: () => void;
 }
 
-interface DocumentMemberListProps {
-    memberList: DocumentMemberItemProps[];
-}
-const TeamMembers = (props: DocumentMemberListProps) => {
-    const {memberList} = props
+const DocumentCollaborators = (props: DocumentCollaboratorsListProps) => {
+    const {collaboratorsList, onUpdateCollaborators} = props;
 
     return (
         <div>
             {
-                memberList.map(item => (
-                    <TeamMemberItem
-                        key={item.id}
-                        id={item.id}
-                        role={item.role}
-                        email={item.email}
-                        username={item.username}
+                collaboratorsList.length > 0 ?
+                    (
+                        <>
+                            {collaboratorsList.map(item => (
+                                <DocumentCollaboratorsItem
+                                    key={item.id}
+                                    id={item.id}
+                                    permission={item.permission}
+                                    user_info={item.user_info}
+                                    onUpdateCollaborators={onUpdateCollaborators}
+                                />
+                            ))}
+                        </>
+                    ) :
+                    <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description={
+                            <div>
+                                暂无协作者
+                            </div>
+                        }
                     />
-                ))
             }
+
         </div>
-    )
-}
-const TeamMemberItem = ({id, role, email, username}: DocumentMemberItemProps) => {
+    );
+};
+
+const DocumentCollaboratorsItem = ({id, permission, user_info, onUpdateCollaborators}: DocumentCollaboratorsItemProps) => {
+    const myUserName = useSelector(state => state.auth.username)
+
+    const dropdownItems = permission === 'read'
+        ? [{ label: '可编辑', key: '1' },{ label: '移除', key: '-1', danger: true,}]
+        : [{ label: '可阅读', key: '0' },{ label: '移除', key: '-1', danger: true,}];
+
+    const handleEditCollaboratorsPermission = async ({ key }: { key: string }) => {
+        if (key === '-1') {
+            const { error } = await supabase
+                .from('project_collaborators')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                message.error(`移除失败：${error.message}`);
+            } else {
+                message.success('协作者已移除');
+                await onUpdateCollaborators()
+            }
+        } else {
+            const newPermission = key === '0' ? 'read' : 'edit';
+            const { error } = await supabase
+                .from('project_collaborators')
+                .update({ permission: newPermission })
+                .eq('id', id);
+
+            if (error) {
+                message.error(`更新权限失败：${error.message}`);
+            } else {
+                message.success('权限已更新');
+                await onUpdateCollaborators()
+            }
+        }
+    };
+
 
     return (
         <div className={'team_member_item'}>
             <div className={'team_member_item_Info'}>
-                <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00' }}>U</Avatar>
+                <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00' }}>
+                    {user_info.email.charAt(0)}
+                </Avatar>
                 <div className={'team_member_item_Info_UE'}>
-                    <div>{username}</div>
-                    <div>{email}</div>
+                    <div>{user_info.username === myUserName ? '我' : user_info.username}</div>
+                    <div>{user_info.email}</div>
                 </div>
-                <div className={'team_member_item_Info_Role'}>{
-                    role === 'owner' ? '可管理' :
-                    role === 'read' ? '可阅读' :
-                    role === 'edit' ? '可编辑' : '未知'
-                }</div>
+                <Dropdown
+                    menu={{
+                        items: dropdownItems,
+                        onClick: handleEditCollaboratorsPermission,
+                    }}
+                    trigger={['click']}
+                >
+                    <div className={'team_member_item_Info_Role'}>
+                        {
+                            permission === 'read' ? '可阅读' :
+                            permission === 'edit' ? '可编辑' : '未知'
+                        }
+                        <i className="ri-arrow-down-s-line"></i>
+                    </div>
+                </Dropdown>
+
             </div>
         </div>
     )
 }
 
+interface TeamMemberItemProps {
+    id: string;
+    user_id: string;
+    role: string;
+    email: string;
+    joined_at: string;
+    username: string
+}
+
+interface TeamMemberListProps {
+    memberList: TeamMemberItemProps[]
+}
+const TeamMemberList = ({memberList}: TeamMemberListProps) => {
+    const myUserName = useSelector(state => state.auth.username)
+
+    return (
+        <div style={{marginTop: 10}}>
+            <Avatar.Group>
+                {
+                    memberList.map(item => (
+                        <Tooltip key={item.id} title={item.username === myUserName ? '我' : item.username} placement="top">
+                            <Avatar
+                                style={{ backgroundColor: '#f56a00', cursor: "pointer" }}
+                            >
+                                {item.email.charAt(0)}
+                            </Avatar>
+                        </Tooltip>
+                    ))
+                }
+
+            </Avatar.Group>
+        </div>
+    )
+}
+const LoadingWrapper = ({ loading, children }) => {
+    return loading ? <div className={'team_member_Loading'}><Spin/></div> : children;
+};
 
 export default CollaboratorPopover

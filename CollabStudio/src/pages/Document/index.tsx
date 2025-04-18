@@ -11,7 +11,7 @@ import {getDocumentItem} from "@/store/modules/documentItemStore.tsx";
 import {supabase} from "@/utils/supabaseClient.ts";
 import {useDocumentPermission} from "@/hooks/useDocumentPermission.ts";
 import {useCollaborativeEditor} from "@/hooks/useCollaborativeEditor.ts";
-import {Spin} from "antd";
+import {Button, Result, Spin} from "antd";
 import CollaboratorPopover from "@/components/CollaboratorPopover";
 
 const Document = () => {
@@ -26,7 +26,9 @@ const Document = () => {
     const [hasInitializedContent, setHasInitializedContent] = useState(false);
 
     const { permission, loading: permissionLoading } = useDocumentPermission(document_id, userId);
-    const [loading, setLoading] = useState<boolean>(true);
+
+    console.log(permission)
+    const [loading, setLoading] = useState<boolean>(false);
     // 使用自定义的 hook 来初始化编辑器
     const { editor } = useCollaborativeEditor({
         permission,
@@ -48,8 +50,11 @@ const Document = () => {
     };
     // 获取文章内容
     useEffect(() => {
+        if (!permission) {
+            return;
+        }
         handleGetDocument();
-    }, []);
+    }, [permission]);
 
     // 编辑文档内容
     useEffect(() => {
@@ -65,6 +70,7 @@ const Document = () => {
 
     // 自动保存
     useEffect(() => {
+        if (permission === 'read') return;
         if (!editor) return;
 
         const updateHandler = () => {
@@ -102,12 +108,17 @@ const Document = () => {
             {
                 // 加载中统一处理
                 (permissionLoading || loading) ? (
-                    <Spin tip="Loading..." size="large" fullscreen/>
-                ) : permission !== 'owner' && permission !== 'edit' && permission !== 'view' ? (
-                    // 无权限提示
-                    <div className="editor_NoPermission">
-                        <h2>您没有权限访问该文档</h2>
-                    </div>
+                    <Spin tip="加载中..." size="large" fullscreen/>
+                ) : !permission ? (
+                    <Result
+                        status="warning"
+                        title="抱歉，您无权限查看此笔记"
+                        extra={
+                            <Button type="primary" key="console">
+                                返回
+                            </Button>
+                        }
+                    />
                 ) : (
                     <>
                         {/* 标题栏 */}
@@ -115,13 +126,20 @@ const Document = () => {
                             <div className={'editor_TB_Title'}>
                                 {documentData.title}
                             </div>
-                            <div className={'editor_TB_Status'}>
-                                <i className="ri-cloud-line"></i>
-                                {status}
-                            </div>
-                            <div className={'editor_TB_Btn'}>
-                                <CollaboratorPopover />
-                            </div>
+                            {
+                                permission !== 'read' &&
+                                <div className={'editor_TB_Status'}>
+                                    <i className="ri-cloud-line"></i>
+                                    {status}
+                                </div>
+                            }
+
+                            {
+                                permission === 'owner' &&
+                                <div className={'editor_TB_Btn'}>
+                                    <CollaboratorPopover/>
+                                </div>
+                            }
 
                         </div>
 

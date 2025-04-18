@@ -48,7 +48,6 @@ export const handleGetTeamMembers = (currentTeamId: string) => async (dispatch: 
             message.error(error.message)
             return;
         }
-        console.log(data)
         dispatch(setItems(data));
 
     } catch (err) {

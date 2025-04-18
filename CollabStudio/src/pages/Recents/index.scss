@@ -1,20 +1,38 @@
-.recents_All {
+.recents {
   padding: 30px;
   box-sizing: border-box;
+
+  &_Topic {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  &_CreateBtn {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 30px;
+  }
+
+  &_List {
+    margin-top: 30px;
+  }
+
+  &_Collaboration {
+    margin-top: 30px;
+
+    &_Title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    &_Table {
+      padding-top: 30px;
+    }
+  }
+
+
 }
-.recents_Topic {
-  font-size: 22px;
-  font-weight: 700;
-}
-.recents_CreateBtn {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 30px;
-}
-.recents_List {
-  margin-top: 30px;
-}
+
 .createbtn_All {
   height: 80px;
   border-radius: 13px;

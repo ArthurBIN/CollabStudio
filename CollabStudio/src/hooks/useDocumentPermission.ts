@@ -18,7 +18,7 @@ export const useDocumentPermission = (documentId: string | undefined, userId: st
             // Step 1: 获取文档信息
             const { data: project, error: projectError } = await supabase
                 .from("projects")
-                .select("id, created_by, team_id")
+                .select("id, team_id")
                 .eq("id", documentId)
                 .single();
 
@@ -28,13 +28,12 @@ export const useDocumentPermission = (documentId: string | undefined, userId: st
                 setLoading(false);
                 return;
             }
-
             // Step 2: 是不是文档创建者（owner）
-            if (project.created_by === userId) {
-                setPermission("owner");
-                setLoading(false);
-                return;
-            }
+            // if (project.created_by === userId) {
+            //     setPermission("owner");
+            //     setLoading(false);
+            //     return;
+            // }
 
             // Step 3: 检查是否是协作者
             const { data: collaborator, error: collaboratorError } = await supabase

@@ -15,7 +15,7 @@ interface iconType {
     type: string
 }
 
-const Type = (props: iconType) => {
+export const Type = (props: iconType) => {
     const { type } = props;
 
     return (
@@ -40,6 +40,8 @@ const NoteItem = (props: Props) => {
     const handleTitle = () => {
         if (type === "document") {
             navigate(`/document/${id}`)
+        } else if (type === "canvas") {
+            navigate(`/canvas/${id}`)
         }
     }
     return (

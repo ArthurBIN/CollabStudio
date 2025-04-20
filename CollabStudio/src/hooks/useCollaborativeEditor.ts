@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import {useEffect, useMemo, useRef} from "react";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -19,6 +19,7 @@ export const useCollaborativeEditor = ({ permission, docId, user }) => {
         ydocRef.current = new Y.Doc();
         providerRef.current = new WebsocketProvider("ws://localhost:1234", docId, ydocRef.current);
     }
+
 
     const editor = useEditor({
         extensions: [

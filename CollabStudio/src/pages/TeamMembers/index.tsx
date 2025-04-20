@@ -1,9 +1,9 @@
 import './index.scss'
 import {TitleBox} from "@/pages/Recents";
-import {Button, Dropdown, Form, Input, message, Modal, Table, Tooltip} from "antd";
+import {AutoComplete, Button, Dropdown, Form, Input, message, Modal, Table, Tooltip} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {supabase} from "@/utils/supabaseClient.ts";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {handleGetTeamMembers} from "@/store/modules/teamMembersStore.tsx";
 
 interface memberProps {
@@ -252,70 +252,35 @@ const TeamMembers = () => {
 interface addMemberProps {
     open: boolean;
     onClose: () => void;
-    refreshMembers: () => void; // 👈 新增这一行
+    refreshMembers: () => void;
 }
 const AddMember = ({ open, onClose, refreshMembers }: addMemberProps) => {
-    const [form] = Form.useForm();
-    const [searchResultList, setSearchResultList] = useState<{ email: string; user_id: string }[]>([]);
-    const [selectedUser, setSelectedUser] = useState<null | { email: string; user_id: string }>(null);
     const [searchLoading, setSearchLoading] = useState(false);
     const currentTeamId = useSelector(state => state.teams.currentTeamId);
-    const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
 
-    const handleSearchInput = async (value: string) => {
-        setSelectedUser(null); // 清除已选中项
-        if (debounceTimer) clearTimeout(debounceTimer);
+    // 查询团队成员文档
+    const [options, setOptions] = useState([]);
 
-        const timer = setTimeout(async () => {
-            if (!value) {
-                setSearchResultList([]);
-                return;
-            }
+    // 团队成员
+    const teamMembersList = useSelector(state => state.team_members.items)
 
-            setSearchLoading(true);
-            try {
-                const { data, error } = await supabase
-                    .from('user_info')
-                    .select('id, email')
-                    .ilike('email', `%${value}%`);
+    // 输入内容
+    const [inputValue, setInputValue] = useState('');
 
-                if (error) {
-                    message.error('搜索出错，请重试');
-                    setSearchResultList([]);
-                } else {
-                    setSearchResultList(data.map((item: any) => ({
-                        email: item.email,
-                        user_id: item.id
-                    })));
-                }
-            } catch (err) {
-                console.log(err);
-                message.error('网络异常');
-            } finally {
-                setSearchLoading(false);
-            }
-        }, 500);
-
-        setDebounceTimer(timer);
-    };
-
-    const handleSelectUser = (user: { email: string, user_id: string }) => {
-        form.setFieldsValue({ userEmail: user.email });
-        setSelectedUser(user);
-        setSearchResultList([]);
-    };
+    // 选中的userid
+    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
     const handleOk = async () => {
-        if (!selectedUser) {
-            message.warning("请从列表中选择一个用户");
+        if (!selectedUserId) {
+            message.warning("请先选择一个用户邮箱");
             return;
         }
 
         try {
-            setSearchLoading(true)
+            setSearchLoading(true);
             const { error } = await supabase.from('team_members').insert({
                 team_id: currentTeamId,
-                user_id: selectedUser.user_id,
+                user_id: selectedUserId,
                 role: 'read',
             });
 
@@ -323,24 +288,80 @@ const AddMember = ({ open, onClose, refreshMembers }: addMemberProps) => {
                 message.error(error.message);
             } else {
                 message.success("成员添加成功！");
-                form.resetFields();
-                setSelectedUser(null);
                 onClose();
-                refreshMembers();
+                setInputValue('');
+                setSelectedUserId(null);
+                setOptions(null)
+                await refreshMembers();
             }
-            setSearchLoading(false)
         } catch (err) {
-            console.log(err)
+            console.error(err);
             message.error("添加失败，请重试");
-            setSearchLoading(false)
+        } finally {
+            setSearchLoading(false);
         }
     };
 
+
     const closeOpen = () => {
-        form.resetFields();
-        setSearchResultList([]);
-        setSelectedUser(null);
         onClose();
+    };
+
+    // 处理输入协作者邮箱查询逻辑
+    const handleTeamMemberSearch = async (searchText: string) => {
+        if (!searchText) {
+            setOptions([]);
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('user_info')
+                .select('id, email')
+                .ilike('email', `%${searchText}%`);
+
+            if (error) {
+                console.error("搜索用户邮箱失败:", error);
+                setOptions([]);
+                return;
+            }
+
+            if (!(data) || data.length === 0) {
+                setOptions([
+                    {
+                        label: <span style={{ color: '#999' }}>未找到相关用户</span>,
+                        value: 'no_result',
+                        disabled: true
+                    }
+                ]);
+                return;
+            }
+
+            const formattedOptions = data.map(item => {
+                const isTeamMember = teamMembersList.some(member => member.email === item.email);
+                return {
+                    label: (
+                        <span style={isTeamMember ? { color: '#aaa' } : {}}>
+                            {item.email} {isTeamMember ? '(团队成员)' : ''}
+                        </span>
+                    ),
+                    value: item.email,
+                    user_id: item.id,
+                    disabled: isTeamMember
+                };
+            });
+
+            setOptions(formattedOptions);
+        } catch (err) {
+            console.error("搜索异常:", err);
+            setOptions([
+                {
+                    label: <span style={{ color: '#999' }}>搜索失败，请稍后重试</span>,
+                    value: 'error',
+                    disabled: true
+                }
+            ]);
+        }
     };
 
     return (
@@ -353,38 +374,21 @@ const AddMember = ({ open, onClose, refreshMembers }: addMemberProps) => {
             cancelText="取消"
             confirmLoading={searchLoading}
         >
-            <Form form={form} layout="vertical">
-                <Form.Item
-                    label="邮箱"
-                    name="userEmail"
-                    rules={[{ required: true, message: '请输入邮箱' }]}
-                >
-                    <Input
-                        placeholder="请输入邮箱"
-                        onChange={(e) => handleSearchInput(e.target.value)}
-                    />
-                </Form.Item>
-            </Form>
+            <AutoComplete
+                popupMatchSelectWidth={252}
+                style={{width: '100%'}}
+                options={options}
+                value={inputValue}
+                onChange={(value, option) => {
+                    setInputValue(value);
+                    setSelectedUserId(option?.user_id || null);
+                }}
+                onSearch={handleTeamMemberSearch}
+                size="large"
+            >
+                <Input size="middle" placeholder="输入用户邮箱邀请协作"/>
+            </AutoComplete>
 
-            {searchResultList.length > 0 && (
-                <div className="search-dropdown" style={{ border: '1px solid #ddd', borderRadius: 4, padding: 10 }}>
-                    {searchResultList.map((user) => (
-                        <div
-                            key={user.user_id}
-                            style={{ padding: '6px 8px', cursor: 'pointer' }}
-                            onClick={() => handleSelectUser(user)}
-                        >
-                            {user.email}
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {selectedUser && (
-                <div style={{ marginTop: 10, color: 'green' }}>
-                    ✅ 已选用户：{selectedUser.email}
-                </div>
-            )}
         </Modal>
     );
 };

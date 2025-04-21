@@ -15,9 +15,9 @@
 
 @font-face {
   font-family: "iconfont"; /* Project id 4873357 */
-  src: url('//at.alicdn.com/t/c/font_4873357_pvhzbd0fbh.woff2?t=1744032049412') format('woff2'),
-  url('//at.alicdn.com/t/c/font_4873357_pvhzbd0fbh.woff?t=1744032049412') format('woff'),
-  url('//at.alicdn.com/t/c/font_4873357_pvhzbd0fbh.ttf?t=1744032049412') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_4873357_d15pcjpv4ck.woff2?t=1745228636825') format('woff2'),
+  url('//at.alicdn.com/t/c/font_4873357_d15pcjpv4ck.woff?t=1745228636825') format('woff'),
+  url('//at.alicdn.com/t/c/font_4873357_d15pcjpv4ck.ttf?t=1745228636825') format('truetype');
 }
 
 .iconfont {
@@ -25,6 +25,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-zhinengyouhua:before {
+  content: "\e69a";
 }
 
 .icon-chengyuan:before {

@@ -1,0 +1,16 @@
+.bubble_AIBtn {
+  border: 1px solid #262626;
+  color: #D2B5F9;
+  background-color: black;
+  border-radius: 8px;
+  padding: 5px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  i {
+    margin: 0 5px;
+  }
+  &:hover {
+    background-color: #1A1919;
+  }
+}
